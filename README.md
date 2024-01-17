@@ -1,2 +1,3 @@
 # RobustGER
-Code for paper "Large Language Models are Efficient Learners of Noise-Robust Speech Recognition"
+
+Code, models, and data are in packaging and will be all open-sourced in next few weeks.
