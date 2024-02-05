@@ -4,7 +4,7 @@
 
 ## Conda Environment Configuration
 
-Our code is built based on [lit-gpt](https://github.com/Lightning-AI/lit-gpt/tree/main), please refer to original repo to build the conda environment.
+Our code is built based on [lit-gpt](https://github.com/Lightning-AI/lit-gpt), please refer to [official tutorial](https://github.com/Lightning-AI/lit-gpt#setup) to build the conda environment.
 
 ## Code
 
@@ -12,11 +12,11 @@ Our code is built based on [lit-gpt](https://github.com/Lightning-AI/lit-gpt/tre
 - Training script: `finetune.sh`;
 - Inference script: `infer.sh`;
 
-To run the training or inference script, you need to enter the scripts and modify the absolute paths of data, model, and experiment directory. Then, directly run the `.sh` script using `bash` command.
+To run the training or inference script, you need to enter the scripts (including `.sh` and the called `.py` files) and modify all the absolute paths of data, model, and experiment directory to be your own (*Hint:* search for "~/RobustGER"). Then, directly run the `.sh` script using `bash` command.
 
 ## Models
 
-- For LLMs, please refer to [tutorial](https://github.com/Lightning-AI/lit-gpt/tree/main/tutorials) for details, which support many mainstream LLMs like LLaMA-2;
+- For LLMs, please refer to [tutorial](https://github.com/Lightning-AI/lit-gpt/tree/main/tutorials) for configuration steps, which support many mainstream LLMs like [LLaMA-2](https://github.com/Lightning-AI/lit-gpt/blob/main/tutorials/download_llama_2.md);
 - For trained adapter weights, please refer to our [HuggingFace repo](https://huggingface.co/PeacefulData/RobustGER).
 
 ## Dataset
