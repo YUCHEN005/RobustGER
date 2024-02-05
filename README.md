@@ -17,7 +17,7 @@ To run the training or inference script, you need to enter the scripts (includin
 ## Models
 
 - For LLMs, please refer to [tutorial](https://github.com/Lightning-AI/lit-gpt/tree/main/tutorials) for configuration steps, which support many mainstream LLMs like [LLaMA-2](https://github.com/Lightning-AI/lit-gpt/blob/main/tutorials/download_llama_2.md);
-- For trained adapter weights, please refer to our [HuggingFace repo](https://huggingface.co/PeacefulData/RobustGER).
+- For well-trained adapter checkpoints, please refer to our [HuggingFace repo](https://huggingface.co/PeacefulData/RobustGER).
 
 ## Dataset
 
