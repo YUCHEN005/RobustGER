@@ -21,6 +21,26 @@ from lit_gpt.model import KVCache, RoPECache, apply_rope
 from lit_gpt.rmsnorm import RMSNorm
 
 
+class MINE(nn.Module):
+    def __init__(self, input_dim1=4096, input_dim2=1280) -> None:
+        super().__init__()
+        n_hidden = input_dim1 // 4
+        self.prefix = nn.Linear(384, input_dim1, bias=False)
+        self.proj1 = nn.Linear(input_dim1, n_hidden, bias=False)
+        self.proj2 = nn.Linear(input_dim2, n_hidden, bias=False)
+        self.proj3 = nn.Linear(n_hidden, n_hidden // 4, bias=False)
+        self.proj4 = nn.Linear(n_hidden // 4, 1, bias=False)
+
+    def forward(self, x1, x2, raw=False) -> torch.Tensor:
+        if raw:
+            x1 = self.prefix(x1)
+        x1 = F.silu(self.proj1(x1.mean(dim=1)))
+        x2 = F.silu(self.proj2(x2.mean(dim=1)))
+        x = F.silu(self.proj3(x1 + x2))
+        x = F.sigmoid(self.proj4(x))
+        return x.squeeze(-1)
+
+
 @dataclass
 class Config(BaseConfig):
     adapter_prompt_length: int = 20
@@ -137,8 +157,8 @@ class CausalSelfAttention(BaseCausalSelfAttention):
                 ek_norm = self.projection_rms_key(ek).view(B, 20, 32, 128).transpose(1, 2)  # B, 32, 20, 128
                 ev_norm = self.projection_rms_value(ev).view(B, 20, 32, 128).transpose(1, 2)
                 # denoise (adaptation prompt - language noise)
-                ak = ak - ek_norm * self.key_gating_factor
-                av = av - ev_norm * self.value_gating_factor
+                ak = ak + ek_norm * self.key_gating_factor
+                av = av + ev_norm * self.value_gating_factor
 
                 adapter_kv_cache = (ak, av)
 

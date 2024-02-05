@@ -13,7 +13,7 @@ wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
 from generate.base import generate
-from lit_gpt.wl_nib import GPT, Block, Config, adapter_filter, mark_only_adapter_as_trainable, MINE_v1
+from lit_gpt.robust_ger import GPT, Block, Config, adapter_filter, mark_only_adapter_as_trainable, MINE
 from lit_gpt.speed_monitor import SpeedMonitorFabric as SpeedMonitor
 from lit_gpt.speed_monitor import estimate_flops, measure_flops
 from lit_gpt.tokenizer import Tokenizer
@@ -133,7 +133,7 @@ def main(fabric: L.Fabric, data_dir: Path, checkpoint_dir: Path, out_dir: Path):
     fabric.print(f"Loading model {str(checkpoint_path)!r} with {config.__dict__}")
     with fabric.init_module(empty_init=False):
         model = GPT(config)
-        mine = MINE_v1(input_dim1, input_dim2)
+        mine = MINE(input_dim1, input_dim2)
 
     with lazy_load(checkpoint_path) as checkpoint:
         # strict=False because missing keys due to adapter weights not contained in state dict

@@ -32,7 +32,7 @@ We have released our Robust HyPoradise dataset at [HuggingFace](https://huggingf
   year={2024}
 }
 
-@inproceedings{chen2023hp,
+@inproceedings{chen2023hyporadise,
   title={HyPoradise: An Open Baseline for Generative Speech Recognition with Large Language Models},
   author={Chen, Chen and Hu, Yuchen and Yang, Chao-Han Huck and Siniscalchi, Sabato Marco and Chen, Pin-Yu and Chng, Eng Siong},
   booktitle={Advances in Neural Information Processing Systems},
