@@ -4,7 +4,10 @@
 
 ## Conda Environment Configuration
 
-Our code is built based on [lit-gpt](https://github.com/Lightning-AI/lit-gpt), please refer to [official tutorial](https://github.com/Lightning-AI/lit-gpt#setup) to build the conda environment.
+Our code is built based on [lit-gpt](https://github.com/Lightning-AI/lit-gpt), please refer to [official tutorial](https://github.com/Lightning-AI/lit-gpt#setup) to build a conda environment. Then, please install the required packages using following command:
+```bash
+pip install -r requirements.txt
+```
 
 ## Code
 
