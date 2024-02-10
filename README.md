@@ -1,8 +1,6 @@
 # Large Language Models are Efficient Learners of Noise-Robust Speech Recognition
 
-[[Paper]](https://openreview.net/pdf?id=ceATjGPTUD) [[Data]](https://huggingface.co/datasets/PeacefulData/Robust-HyPoradise) [[Model]](https://huggingface.co/PeacefulData/RobustGER)
-
- This work extends the latest ASR generative error correction (GER) [benchmark](https://openreview.net/pdf?id=cAjZ3tMye6) to noise-robust ASR with a Robust HyPoradise dataset, and it proposes a language-space denoising approach for GER that has achieved a new breakthrough.
+ [This work](https://openreview.net/pdf?id=ceATjGPTUD) extends the latest ASR generative error correction (GER) [benchmark](https://openreview.net/pdf?id=cAjZ3tMye6) to noise-robust ASR with a Robust HyPoradise dataset, and it proposes a language-space denoising approach for GER that has achieved a new breakthrough.
 
 ## Conda Environment Configuration
 
