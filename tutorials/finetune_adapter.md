@@ -22,8 +22,6 @@ python scripts/prepare_alpaca.py --checkpoint_dir checkpoints/stabilityai/stable
 
 or [prepare your own dataset](#tune-on-your-dataset).
 
-For more information about dataset preparation, also see the [prepare_dataset.md](./prepare_dataset.md) tutorial.
-
 ## Running the finetuning
 
 ```bash

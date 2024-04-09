@@ -1,6 +1,7 @@
 import json
 import sys
 import time
+import warnings
 from pathlib import Path
 from typing import List, Literal, Optional
 
@@ -49,7 +50,8 @@ class EvalHarnessBase(BaseLM):
         checkpoint_dir = Path(checkpoint_dir)
         check_valid_checkpoint_dir(checkpoint_dir)
 
-        config = Config.from_json(checkpoint_dir / "lit_config.json")
+        with open(checkpoint_dir / "lit_config.json") as fp:
+            config = Config(**json.load(fp))
 
         if quantize is not None and devices > 1:
             raise NotImplementedError
@@ -89,7 +91,8 @@ class EvalHarnessBase(BaseLM):
 
     @property
     def max_length(self):
-        return self.model.max_seq_length
+        # TODO: keep decoupled from block_size
+        return self.model.config.block_size
 
     @property
     def max_gen_toks(self):
@@ -110,7 +113,7 @@ class EvalHarnessBase(BaseLM):
         t = torch.tensor(tokens)
         return self.tokenizer.decode(t)
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def _model_call(self, inps):
         """
         inps: a torch tensor of shape [batch, sequence]
@@ -123,12 +126,18 @@ class EvalHarnessBase(BaseLM):
     def _model_generate(self, context, max_length, eos_token_id):
         assert context.shape[0] == 1
         out = generate(
-            self.model, context[0], max_length, temperature=self.temperature, top_k=None, eos_id=eos_token_id
+            model=self.model,
+            idx=context[0],
+            max_new_tokens=max_length,
+            max_seq_length=self.model.config.block_size,
+            temperature=self.temperature,
+            top_k=None,
+            eos_id=eos_token_id,
         )
 
         return self.tokenizer.decode(out)
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def run_eval(
         self,
         eval_tasks=None,
@@ -235,5 +244,10 @@ if __name__ == "__main__":
     from jsonargparse import CLI
 
     torch.set_float32_matmul_precision("high")
+    warnings.filterwarnings(
+        # Triggered internally at ../aten/src/ATen/EmptyTensor.cpp:31
+        "ignore",
+        message="ComplexHalf support is experimental and many operators don't support it yet",
+    )
     result = CLI(run_eval_harness)
     print(result)

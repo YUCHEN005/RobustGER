@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger
-from lightning.pytorch.strategies import FSDPStrategy
+from lightning.pytorch.strategies import FSDPStrategy, XLAStrategy
 from torch.utils.data import DataLoader, IterableDataset
 
 # support running without installing as a package
@@ -19,7 +19,7 @@ sys.path.append(str(wd))
 from lit_gpt import Config
 from lit_gpt.model import GPT, Block
 from lit_gpt.speed_monitor import SpeedMonitorCallback, estimate_flops, measure_flops
-from lit_gpt.utils import chunked_cross_entropy, get_default_supported_precision
+from lit_gpt.utils import chunked_cross_entropy, get_default_supported_precision, step_csv_logger
 
 model_name = "pythia-70m"
 name = "openwebtext"
@@ -73,7 +73,7 @@ class LightningGPTModule(L.LightningModule):
             # consider setting `self.measured_flops = estimated_flops` instead
             estimated_flops = estimate_flops(meta_model) * micro_batch_size
             self.print(f"Estimated TFLOPs: {estimated_flops * trainer.world_size / 1e12:.2f}")
-            x = torch.randint(0, 1, (micro_batch_size, meta_model.max_seq_length))
+            x = torch.randint(0, 1, (micro_batch_size, meta_model.config.block_size))
             self.measured_flops = measure_flops(meta_model, x)
             self.print(f"Measured TFLOPs: {self.measured_flops * trainer.world_size / 1e12:.2f}")
 
@@ -100,22 +100,27 @@ class LightningGPTModule(L.LightningModule):
         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
 
 
-def main(devices: int = 1, precision: Optional[str] = None) -> None:
-    precision = precision or get_default_supported_precision(training=True)
+def main(devices: int = 1, precision: Optional[str] = None, tpu: bool = False) -> None:
+    precision = precision or get_default_supported_precision(training=True, tpu=tpu)
 
     if devices > 1:
-        strategy = FSDPStrategy(
-            auto_wrap_policy={Block},
-            activation_checkpointing_policy={Block},
-            # the argument is not available in the Trainer strategy, but it's the default anyways
-            # state_dict_type="full",
-            limit_all_gathers=True,
-            cpu_offload=False,
-        )
+        if tpu:
+            # For multi-host TPU training, the device count for Fabric is limited to the count on a single host.
+            devices = "auto"
+            strategy = XLAStrategy(sync_module_states=False)
+        else:
+            strategy = FSDPStrategy(
+                auto_wrap_policy={Block},
+                activation_checkpointing_policy={Block},
+                # the argument is not available in the Trainer strategy, but it's the default anyways
+                # state_dict_type="full",
+                limit_all_gathers=True,
+                cpu_offload=False,
+            )
     else:
         strategy = "auto"
 
-    logger = CSVLogger("out", name, flush_logs_every_n_steps=log_interval)
+    logger = step_csv_logger("out", name, cls=CSVLogger, flush_logs_every_n_steps=log_interval)
     speed_monitor = SpeedMonitorCallback(
         length_fn=lambda batch: batch[0].size(1), batch_size=micro_batch_size, window_size=50, time_unit="seconds"
     )
